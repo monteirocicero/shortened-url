@@ -1,7 +1,5 @@
 package com.orecic.shortened;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,10 +12,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.event.annotation.BeforeTestClass;
 
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -42,13 +37,7 @@ class ShortenedUrlApplicationTests {
 		headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		urlJsonObject = new JSONObject();
-		urlJsonObject.put("largeUrl", "");
-	}
-
-	@Test
-	void contextLoads() {
-		assertThat(this.restTemplate.getForObject("http://localhost:" + port + "/shortened-url/url",
-				String.class)).contains("Hello World");
+		urlJsonObject.put("originalUrl", "");
 	}
 
 	@Test

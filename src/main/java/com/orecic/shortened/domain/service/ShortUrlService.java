@@ -1,4 +1,4 @@
-package com.orecic.shortened.domain;
+package com.orecic.shortened.domain.service;
 
 import com.orecic.shortened.application.data.ShortUrlRequest;
 import com.orecic.shortened.infrastructure.ShortUrlResponse;
