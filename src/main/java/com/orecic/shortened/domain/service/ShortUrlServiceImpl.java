@@ -1,10 +1,9 @@
 package com.orecic.shortened.domain.service;
 
-import com.orecic.shortened.application.ShortUrlController;
 import com.orecic.shortened.application.data.ShortUrlRequest;
 import com.orecic.shortened.domain.data.UrlDAO;
 import com.orecic.shortened.domain.entity.UrlEntity;
-import com.orecic.shortened.infrastructure.AliasGenerator;
+import com.orecic.shortened.infrastructure.ShortKeyGenerator;
 import com.orecic.shortened.infrastructure.ShortUrlResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +30,10 @@ public class ShortUrlServiceImpl implements ShortUrlService {
     public ShortUrlResponse getShortUrl(ShortUrlRequest shortUrlRequest) {
         logger.info("m=getShortUrl msg=generate-short-url request={}", shortUrlRequest.originalUrl());
 
-        var alias = new AliasGenerator();
+        var alias = new ShortKeyGenerator(shortUrlRequest.originalUrl()).getKey();
 
-        urlDAO.save(new UrlEntity(alias.getAlias(), shortUrlRequest.originalUrl(), shortUrlRequest.convertMillisToTimestamp()));
+        urlDAO.save(new UrlEntity(alias.get(), shortUrlRequest.originalUrl(), shortUrlRequest.convertMillisToTimestamp()));
 
-        return new ShortUrlResponse(domainApp, alias.getAlias());
+        return new ShortUrlResponse(domainApp, alias.get());
     }
 }
