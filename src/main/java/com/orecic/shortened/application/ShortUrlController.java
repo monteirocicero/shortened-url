@@ -9,10 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 
@@ -26,12 +24,18 @@ public class ShortUrlController {
     private ShortUrlService shortUrlService;
 
     @RequestMapping(value = "/url", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public @ResponseBody
-    ResponseEntity<ShortUrlResponse> getShortUrl(@RequestBody @Valid ShortUrlRequest shortUrlRequest) {
+    @ResponseBody
+    ResponseEntity<ShortUrlResponse> generateShortUrl(@RequestBody @Valid ShortUrlRequest shortUrlRequest) {
         logger.info("m=getShortUrl msg=handle-request request={}", shortUrlRequest.originalUrl());
 
-        var response = shortUrlService.getShortUrl(shortUrlRequest);
+        var response = shortUrlService.buildShortUrl(shortUrlRequest);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/url/{alias}", method = RequestMethod.GET)
+    ModelAndView getShortUrl(@PathVariable("alias") String alias) {
+        var urlToRedirect = shortUrlService.getShortUrl(alias);
+        return new ModelAndView("redirect:" + urlToRedirect);
     }
 
 }

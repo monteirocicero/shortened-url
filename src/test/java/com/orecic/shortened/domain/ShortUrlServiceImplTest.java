@@ -26,7 +26,7 @@ public class ShortUrlServiceImplTest {
         var expectDomain = "http://localhost:8080/shortened-url";
 
         // when
-        var shortenedUrl = shortUrlService.getShortUrl(request);
+        var shortenedUrl = shortUrlService.buildShortUrl(request);
 
         // then
         Assertions.assertNotNull(shortenedUrl.getShortUrl());

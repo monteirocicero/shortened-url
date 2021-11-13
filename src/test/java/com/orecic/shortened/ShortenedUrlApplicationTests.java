@@ -41,14 +41,13 @@ class ShortenedUrlApplicationTests {
 	}
 
 	@Test
-	void shouldCallWithSuccess() {
+	void shouldGenerateShortUrlForRequest() {
 		var request = new HttpEntity<>(urlJsonObject.toString(), headers);
 
 		var urlResultAsJsonStr = restTemplate.postForObject(createShortUrl, request, String.class);
 
 		assertNotNull(urlResultAsJsonStr);
-
-
 	}
+
 
 }

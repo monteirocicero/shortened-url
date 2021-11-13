@@ -27,13 +27,20 @@ public class ShortUrlServiceImpl implements ShortUrlService {
     }
 
     @Override
-    public ShortUrlResponse getShortUrl(ShortUrlRequest shortUrlRequest) {
-        logger.info("m=getShortUrl msg=generate-short-url request={}", shortUrlRequest.originalUrl());
+    public ShortUrlResponse buildShortUrl(ShortUrlRequest shortUrlRequest) {
+        logger.info("m=buildShortUrl msg=generate-short-url request={}", shortUrlRequest.originalUrl());
 
         var alias = new ShortKeyGenerator(shortUrlRequest.originalUrl()).getKey();
 
         urlDAO.save(new UrlEntity(alias.get(), shortUrlRequest.originalUrl(), shortUrlRequest.convertMillisToTimestamp()));
 
         return new ShortUrlResponse(domainApp, alias.get());
+    }
+
+    @Override
+    public String getShortUrl(String alias) {
+        logger.info("m=getShortUrl msg=retriving-short-url request={}", alias);
+
+        return urlDAO.getByAlias(alias);
     }
 }

@@ -19,4 +19,9 @@ public class UrlDAOImpl implements UrlDAO {
     public void save(UrlEntity shortenedUrl) {
         urlRepository.save(shortenedUrl);
     }
+
+    @Override
+    public String getByAlias(String alias) {
+        return urlRepository.findByAlias(alias);
+    }
 }
