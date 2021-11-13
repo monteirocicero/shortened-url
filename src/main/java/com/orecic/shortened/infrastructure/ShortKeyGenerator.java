@@ -30,7 +30,7 @@ public class ShortKeyGenerator {
             md.update(unique.getBytes());
             var digest = md.digest();
 
-            return Optional.ofNullable(Base64.getEncoder().withoutPadding().encodeToString(digest).substring(0, 8));
+            return Optional.ofNullable(Base64.getUrlEncoder().withoutPadding().encodeToString(digest).substring(0, 8));
         } catch (NoSuchAlgorithmException e) {
             logger.error("m=getKey msg=error-on-generate-key error={}", e.getMessage());
         }
