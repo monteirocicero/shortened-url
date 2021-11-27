@@ -22,6 +22,13 @@ public class UrlDAOImpl implements UrlDAO {
 
     @Override
     public String getByAlias(String alias) {
+        return urlRepository.findByAliasAndExpirationTime(alias);
+    }
+
+    @Override
+    public String alreadyExistsAlias(String alias) {
+        System.out.println("alreadyExistsAlias");
         return urlRepository.findByAlias(alias);
     }
+
 }

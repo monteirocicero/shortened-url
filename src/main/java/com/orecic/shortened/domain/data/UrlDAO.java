@@ -6,4 +6,6 @@ public interface UrlDAO {
     void save(UrlEntity shortenedUrl);
 
     String getByAlias(String alias);
+
+    String alreadyExistsAlias(String alias);
 }

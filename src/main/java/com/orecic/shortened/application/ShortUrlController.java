@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
@@ -28,8 +29,12 @@ public class ShortUrlController {
     ResponseEntity<ShortUrlResponse> generateShortUrl(@RequestBody @Valid ShortUrlRequest shortUrlRequest) {
         logger.info("m=getShortUrl msg=handle-request request={}", shortUrlRequest.originalUrl());
 
-        var response = shortUrlService.buildShortUrl(shortUrlRequest);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        try {
+            var response = shortUrlService.buildShortUrl(shortUrlRequest);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
 
     @RequestMapping(value = "/url/{alias}", method = RequestMethod.GET)

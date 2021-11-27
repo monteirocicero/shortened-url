@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class ShortUrlServiceImpl implements ShortUrlService {
@@ -30,17 +31,25 @@ public class ShortUrlServiceImpl implements ShortUrlService {
     public ShortUrlResponse buildShortUrl(ShortUrlRequest shortUrlRequest) {
         logger.info("m=buildShortUrl msg=generate-short-url request={}", shortUrlRequest.originalUrl());
 
-        var alias = new ShortKeyGenerator(shortUrlRequest.originalUrl()).getKey();
+        if (StringUtils.hasLength(shortUrlRequest.alias())) {
+            if (StringUtils.hasLength(urlDAO.alreadyExistsAlias(shortUrlRequest.alias()))) {
+                throw new IllegalArgumentException("Already exists alias with this name.");
+            }
 
-        urlDAO.save(new UrlEntity(alias.get(), shortUrlRequest.originalUrl(), shortUrlRequest.convertMillisToTimestamp()));
+            urlDAO.save(new UrlEntity(shortUrlRequest.alias(), shortUrlRequest.originalUrl(), shortUrlRequest.convertMillisToTimestamp()));
+            return new ShortUrlResponse(domainApp, shortUrlRequest.alias());
 
-        return new ShortUrlResponse(domainApp, alias.get());
+        } else {
+            var alias = new ShortKeyGenerator(shortUrlRequest.originalUrl()).getKey();
+            urlDAO.save(new UrlEntity(alias.get(), shortUrlRequest.originalUrl(), shortUrlRequest.convertMillisToTimestamp()));
+            return new ShortUrlResponse(domainApp, alias.get());
+        }
+
     }
 
     @Override
     public String getShortUrl(String alias) {
-        logger.info("m=getShortUrl msg=retriving-short-url request={}", alias);
-
+        logger.info("m=getShortUrl msg=retrieving-short-url request={}", alias);
         return urlDAO.getByAlias(alias);
     }
 }
