@@ -12,6 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Objects;
+
 @Service
 public class ShortUrlServiceImpl implements ShortUrlService {
 
@@ -36,12 +41,12 @@ public class ShortUrlServiceImpl implements ShortUrlService {
                 throw new IllegalArgumentException("Already exists alias with this name.");
             }
 
-            urlDAO.save(new UrlEntity(shortUrlRequest.alias(), shortUrlRequest.originalUrl(), shortUrlRequest.convertMillisToTimestamp()));
+            urlDAO.save(new UrlEntity(shortUrlRequest.alias(), shortUrlRequest.originalUrl(), handleTimeToExpiration(shortUrlRequest)));
             return new ShortUrlResponse(domainApp, shortUrlRequest.alias());
 
         } else {
             var alias = new ShortKeyGenerator(shortUrlRequest.originalUrl()).getKey();
-            urlDAO.save(new UrlEntity(alias.get(), shortUrlRequest.originalUrl(), shortUrlRequest.convertMillisToTimestamp()));
+            urlDAO.save(new UrlEntity(alias.get(), shortUrlRequest.originalUrl(), handleTimeToExpiration(shortUrlRequest)));
             return new ShortUrlResponse(domainApp, alias.get());
         }
 
@@ -51,5 +56,15 @@ public class ShortUrlServiceImpl implements ShortUrlService {
     public String getShortUrl(String alias) {
         logger.info("m=getShortUrl msg=retrieving-short-url request={}", alias);
         return urlDAO.getByAlias(alias);
+    }
+
+    private Timestamp handleTimeToExpiration(ShortUrlRequest shortUrlRequest) {
+        if (Objects.isNull(shortUrlRequest.timeToExpiration())) {
+            Instant instant = Instant.now().plus(Duration.ofMinutes(15));
+            long timeStampMillis = instant.toEpochMilli();
+            return new Timestamp(timeStampMillis);
+        }
+
+        return new Timestamp(shortUrlRequest.timeToExpiration());
     }
 }
