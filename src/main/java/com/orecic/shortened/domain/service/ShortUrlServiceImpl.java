@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -32,6 +33,9 @@ public class ShortUrlServiceImpl implements ShortUrlService {
         this.urlDAO = urlDao;
     }
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     @Override
     public ShortUrlResponse buildShortUrl(ShortUrlRequest shortUrlRequest) {
         logger.info("m=buildShortUrl msg=generate-short-url request={}", shortUrlRequest.originalUrl());
@@ -42,11 +46,19 @@ public class ShortUrlServiceImpl implements ShortUrlService {
             }
 
             urlDAO.save(new UrlEntity(shortUrlRequest.alias(), shortUrlRequest.originalUrl(), handleTimeToExpiration(shortUrlRequest)));
+            redisTemplate.opsForHash().put("URL", shortUrlRequest.alias(), shortUrlRequest.originalUrl());
             return new ShortUrlResponse(domainApp, shortUrlRequest.alias());
 
         } else {
             var alias = new ShortKeyGenerator(shortUrlRequest.originalUrl()).getKey();
+            logger.info("m=buildShortUrl msg=generate-short-url request={}", shortUrlRequest.originalUrl());
+
             urlDAO.save(new UrlEntity(alias.get(), shortUrlRequest.originalUrl(), handleTimeToExpiration(shortUrlRequest)));
+            logger.info("m=buildShortUrl msg=generate-short-url alias={}", alias.get());
+
+            redisTemplate.opsForHash().put("URL", alias.get(), shortUrlRequest.originalUrl());
+            logger.info("m=buildShortUrl msg=generate-short-url cache={}", shortUrlRequest.originalUrl());
+
             return new ShortUrlResponse(domainApp, alias.get());
         }
 
@@ -55,6 +67,10 @@ public class ShortUrlServiceImpl implements ShortUrlService {
     @Override
     public String getShortUrl(String alias) {
         logger.info("m=getShortUrl msg=retrieving-short-url request={}", alias);
+        var keyFromCache = (String) redisTemplate.opsForHash().get("URL", alias);
+        if (keyFromCache != null) {
+            return keyFromCache;
+        }
         return urlDAO.getByAlias(alias);
     }
 

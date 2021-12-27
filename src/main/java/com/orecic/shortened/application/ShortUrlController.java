@@ -39,7 +39,11 @@ public class ShortUrlController {
 
     @RequestMapping(value = "/url/{alias}", method = RequestMethod.GET)
     ModelAndView getShortUrl(@PathVariable("alias") String alias) {
+        var init = System.currentTimeMillis();
         var urlToRedirect = shortUrlService.getShortUrl(alias);
+        var end = System.currentTimeMillis() - init;
+        logger.info("m=getShortUrl msg=total-time-request time={}ms", end);
+
         return new ModelAndView("redirect:" + urlToRedirect);
     }
 
