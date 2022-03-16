@@ -51,7 +51,7 @@ Endpoint:
 Response:
 302
 
-Redirect para url original
+Redirect to the orignal url.
 
 ## Redis
 Consulting key in Redis:
