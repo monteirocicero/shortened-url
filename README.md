@@ -61,6 +61,13 @@ Consulting key in Redis:
 1) "\xac\xed\x00\x05t\x00\x03URL"
 ```
 
+## Load Test
+I am using Locust https://locust.io/ as a tool for loading test.
+
+It is a tool make in Python that is very easy to use.
+
+The script are into the folder named `load-test`, so go to there and run `locust`, after that, locust will start an application server to run the tests.
+
 
 
 
